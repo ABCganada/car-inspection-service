@@ -2,7 +2,6 @@ package com.capstone.sandwich.Service;
 
 
 import com.capstone.sandwich.Domain.DTO.AiResponseDTO;
-import com.capstone.sandwich.Domain.Entity.CustomMultipartFile;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.FileSystemResource;
@@ -21,9 +20,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
 import java.util.Map;
 
 public class AiRequestTest {

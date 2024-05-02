@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Car Inspection Result</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 800px;
+      margin: 50px auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      color: #333;
+      text-align: center;
+    }
+    .car-info {
+      margin-top: 30px;
+    }
+    .car-info p {
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+    .error-message {
+      color: #ff0000;
+      font-weight: bold;
+    }
+    .image-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    .image-container img {
+      max-width: 200px;
+      max-height: 200px;
+      margin: 5px;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>Car Inspection Result</h1>
+  <div th:if="${carInfo != null}" class="car-info">
+    <p><strong>Car Number:</strong> <span th:text="${carInfo.carNumber}"></span></p>
+    <p><strong>Scratch:</strong> <span th:text="${carInfo.scratch}"></span></p>
+    <p><strong>Installation:</strong> <span th:text="${carInfo.installation}"></span></p>
+    <p><strong>Exterior:</strong> <span th:text="${carInfo.exterior}"></span></p>
+    <p><strong>Gap:</strong> <span th:text="${carInfo.gap}"></span></p>
+    <div class="image-container">
+      <p><strong>Images:</strong></p>
+      <div th:each="imageUrl : ${carInfo.imageUrlList}">
+        <img th:src="${imageUrl}" alt="Car Image">
+      </div>
+    </div>
+  </div>
+  <div th:if="${carInfo == null}" class="error-message">
+    <p>Car information not found.</p>
+  </div>
+</div>
+</body>
+</html>

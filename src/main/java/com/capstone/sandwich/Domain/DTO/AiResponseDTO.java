@@ -2,7 +2,6 @@ package com.capstone.sandwich.Domain.DTO;
 
 import com.capstone.sandwich.Domain.Entity.CustomMultipartFile;
 import lombok.*;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;

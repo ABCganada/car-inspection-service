@@ -17,4 +17,10 @@ public interface CarRepository extends JpaRepository<Car,Integer> {
     List<Car> findByThisMonth(int year, int month);
 
     List<Car> findByCreatedDate(LocalDate createdDate);
+
+    void deleteByCarNumber(String carNumber);
+
+    void deleteByUserId(Long userId);
+
+    List<Car> findByUserId(Long userId);
 }

@@ -9,5 +9,4 @@ class SandwichApplicationTests {
 	@Test
 	void contextLoads() {
 	}
-
 }

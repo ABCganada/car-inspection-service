@@ -4,20 +4,13 @@ import com.capstone.sandwich.Domain.DTO.AiResponseDTO;
 import com.capstone.sandwich.Domain.DTO.RequestDTO;
 import com.capstone.sandwich.Domain.Entity.Car;
 import com.capstone.sandwich.Domain.Exception.ApiException;
-import com.capstone.sandwich.Repository.CarImagesRepository;
 import com.capstone.sandwich.Repository.CarRepository;
 import lombok.RequiredArgsConstructor;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -106,7 +99,7 @@ class CarServiceTest {
         List<String> urls= new ArrayList<String>();
         urls.add("www.url1.storage");
         urls.add("www.url2.storage");
-        carService.insertDB(aiResponseDTO,urls);
+//        carService.insertDB(aiResponseDTO,urls);
 
 
         assertThat(carService.getCar(testCarNumber).getCarNumber()).isEqualTo(testCarNumber);

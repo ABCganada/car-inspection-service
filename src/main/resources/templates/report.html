@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inspection Report</title>
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+    }
+    .container {
+      max-width: 800px;
+      margin: 50px auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      color: #333;
+      text-align: center;
+    }
+    .form-group {
+      text-align: right;
+    }
+    table {
+      width: 100%;
+    }
+    th, td {
+      text-align: center;
+    }
+    th {
+      background-color: #007bff;
+      color: #fff;
+    }
+    tbody tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+    tbody tr:hover {
+      background-color: #e2e2e2;
+    }
+    a {
+      color: #007bff;
+    }
+  </style>
+</head>
+<body>
+<div class="container mt-5">
+  <h1 class="mb-4">Inspection Report</h1>
+  <!-- Date Selection -->
+  <div class="form-group">
+    <label for="inspectionDate">Date:</label>
+    <input type="date" id="inspectionDate" name="inspectionDate" onchange="fetchAndPopulateReport(this.value)">
+  </div>
+  <!-- Table -->
+  <table class="table table-bordered">
+    <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Car Number</th>
+      <th scope="col">Scratches</th>
+      <th scope="col">Installation Defects</th>
+      <th scope="col">Exterior Damage</th>
+      <th scope="col">Gap Damage</th>
+      <th scope="col">Total Defects</th>
+      <th scope="col">Actions</th> <!-- 새로운 열 추가 -->
+    </tr>
+    </thead>
+    <tbody>
+    <!-- Thymeleaf Loop -->
+    <tr th:each="report, iStat : ${reportList}">
+      <td th:text="${iStat.index + 1}"></td>
+      <td><a th:href="@{/api/result/{carNumber}(carNumber=${report.carNumber})}" th:text="${report.carNumber}"></a></td>
+      <td th:text="${report.scratch}"></td>
+      <td th:text="${report.installation}"></td>
+      <td th:text="${report.exterior}"></td>
+      <td th:text="${report.gap}"></td>
+      <td th:text="${report.totalDefects}"></td>
+      <td> <!-- 새로운 열에 삭제 버튼 추가 -->
+        <button class="btn btn-danger" th:attr="onclick=|deleteReport('${report.carNumber}')|">Delete</button>
+
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- JavaScript 추가 -->
+<script>
+  function deleteReport(carNumber) {
+    if (confirm("Are you sure you want to delete this report?")) {
+      fetch(`/api/delete/${carNumber}`, {
+        method: 'DELETE'
+      })
+      .then(response => {
+        if (response.ok) {
+          location.reload(); // 삭제 후 페이지 새로고침
+        } else {
+          console.error('Failed to delete report');
+        }
+      })
+      .catch(error => console.error('Error:', error));
+    }
+  }
+</script>
+
+</body>
+</html>

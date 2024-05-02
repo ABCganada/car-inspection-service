@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>차량 검수 요청</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 20px;
+    }
+    .container {
+        max-width: 500px;
+        margin: auto;
+        background: #fff;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .form-group {
+        margin-bottom: 20px;
+    }
+    .form-group label {
+        font-weight: bold;
+    }
+    .form-group input[type="text"],
+    .form-group input[type="file"] {
+        width: calc(100% - 20px);
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+    .form-group input[type="file"] {
+        border: none;
+        background: #f9f9f9;
+    }
+    .form-group button {
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    .form-group button:hover {
+        background-color: #0056b3;
+    }
+    .preview-image {
+        width: calc(25% - 10px);
+        height: auto;
+        margin: 5px;
+        float: left;
+    }
+  </style>
+</head>
+<body>
+<div class="container mt-5">
+  <h1 class="text-center mb-4">차량 검수 요청</h1>
+  <form id="inspectionForm" action="/api/inspection" method="post" enctype="multipart/form-data">
+    <div class="form-group">
+      <label for="carNumber">차량 품번:</label>
+      <input type="text" id="carNumber" name="carNumber" required th:required="true">
+    </div>
+    <div class="form-group">
+      <label for="imageList">차량 이미지 (8장):</label>
+      <input type="file" id="imageList" name="imageList" accept="image/*" multiple required th:required="true" onchange="previewImages()">
+      <div id="imagePreview" class="preview-image"></div>
+    </div>
+    <div class="form-group text-center">
+      <button type="submit">검수 요청</button>
+    </div>
+  </form>
+</div>
+
+<script>
+  function previewImages() {
+    var preview = document.getElementById('imagePreview');
+    preview.innerHTML = '';
+    var files = document.getElementById('imageList').files;
+
+    if (files) {
+      for (var i = 0; i < files.length; i++) {
+        var file = files[i];
+        var reader = new FileReader();
+
+        reader.onload = function(e) {
+          var img = document.createElement('img');
+          img.className = 'preview-image';
+          img.src = e.target.result;
+          preview.appendChild(img);
+        };
+
+        reader.readAsDataURL(file);
+      }
+    }
+  }
+</script>
+
+</body>
+</html>

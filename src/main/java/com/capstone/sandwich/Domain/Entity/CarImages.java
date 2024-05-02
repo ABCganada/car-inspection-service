@@ -24,4 +24,8 @@ public class CarImages {
     @ManyToOne
     @JoinColumn(name = "car_id")
     private Car car;
+
+    public void setCar(Car car) {
+        this.car = car;
+    }
 }

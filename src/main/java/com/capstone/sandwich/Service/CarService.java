@@ -1,17 +1,14 @@
 package com.capstone.sandwich.Service;
 
-import com.capstone.sandwich.Domain.DTO.AiResponseDTO;
-import com.capstone.sandwich.Domain.DTO.BackResponseDTO;
-import com.capstone.sandwich.Domain.DTO.ReportDto;
-import com.capstone.sandwich.Domain.DTO.RequestDTO;
+import com.capstone.sandwich.Domain.DTO.*;
 import com.capstone.sandwich.Domain.Entity.Car;
 import com.capstone.sandwich.Domain.Entity.CarImages;
 import com.capstone.sandwich.Domain.Exception.ApiException;
 import com.capstone.sandwich.Repository.CarImagesRepository;
 import com.capstone.sandwich.Repository.CarRepository;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -27,7 +24,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -73,10 +69,22 @@ public class CarService {
 
     public AiResponseDTO requestToAi(RequestDTO requestDTO) {
         log.info("request to Ai");
-        AiResponseDTO response = getResponse(requestDTO);
+        AiResponseDTO response = justGetResponse(requestDTO);
         log.info("result scratch : {}, gap: {}, installation = {}, exterior = {}",response.getScratch(),response.getGap(),response.getInstallation(),response.getExterior());
-        log.info("images = {}",response.getEncodedImages().size());
+//        log.info("images = {}",response.getEncodedImages().size());
         return response;
+    }
+
+    public AiResponseDTO justGetResponse(RequestDTO requestDTO) {
+        return AiResponseDTO.builder()
+                .carNumber(requestDTO.getCarNumber())
+                .imageList(requestDTO.getImageList())
+                .exterior(0)
+                .gap(0)
+                .installation(0)
+                .scratch(0)
+                .totalDefects(0)
+                .build();
     }
 
     //주 로직
@@ -118,7 +126,8 @@ public class CarService {
                 .build();
     }
 
-    public void insertDB(AiResponseDTO aiResponseDTO, List<String> imageUrlList) {
+    public void insertDB(AiResponseDTO aiResponseDTO, List<String> imageUrlList, Long userId) {
+
         //car Entity 생성
         Car car = Car.builder()
                 .carNumber(aiResponseDTO.getCarNumber())
@@ -127,6 +136,7 @@ public class CarService {
                 .gap(aiResponseDTO.getGap())
                 .scratch(aiResponseDTO.getScratch())
                 .totalDefects(aiResponseDTO.getTotalDefects())
+                .userId(userId)
                 .createdDate(LocalDate.now(ZoneId.of("Asia/Seoul")))
                 .build();
 
@@ -145,13 +155,20 @@ public class CarService {
         carImagesRepository.saveAll(images);
     }
 
+    public void insertData(Car car) throws Exception {
+        if (isDuplicate(car.getCarNumber())) {
+            throw new Exception("중복 차량 번호");
+        }
+
+        carRepository.save(car);
+    }
+
     public List<Car> findCarThisMonth(int year, int month) {
         return carRepository.findByThisMonth(year, month);
     }
 
     //main 로직에서 추가
     public Car getCar(String carNumber) {
-
         return carRepository.findByCarNumber(carNumber)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 차량 번호입니다."));
     }
@@ -190,8 +207,6 @@ public class CarService {
                 .build();
     }
 
-
-
     public List<ReportDto> getReportDtoFromDate(LocalDate date) {
         List<Car> carList = carRepository.findByCreatedDate(date);
 
@@ -219,5 +234,76 @@ public class CarService {
             return false;
         }
         return true;
+    }
+
+//    public Long getUserIdFromCarNumber(String carNumber) {
+//        Optional<Car> optionalCar = carRepository.findByCarNumber(carNumber);
+//        if (optionalCar.isPresent()) {
+//            Car car = optionalCar.get();
+//            User user = car.getUser();
+//            return user.getId();
+//        }
+//
+//        return null;
+//    }
+
+//    @Transactional
+//    public boolean deleteCar(String carNumber, Long userId) {
+
+//        //userId에 해당하는 user 찾기
+//        User user = userRepository.findById(userId)
+//                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+//        List<Car> cars = user.getCars();
+//
+//        //carNumber에 해당하는 car 찾기
+//        Optional<Car> optionalCar = cars.stream()
+//                .filter(car -> car.getCarNumber().equals(carNumber))
+//                .findFirst();
+//
+//        if (optionalCar.isPresent()) {
+//            Car delCar = optionalCar.get();
+//
+//            if (delCar.getUser().getId().equals(userId)) {
+//                cars.remove(delCar);
+//                carRepository.delete(delCar);
+//                return true;
+//            } else {
+//                throw new RuntimeException("삭제 권한이 없습니다.");
+//            }
+//        }
+//
+//        return false;
+//    }
+
+    public String getDateOfCar(String carNumber) {
+        Optional<Car> optionalCar = carRepository.findByCarNumber(carNumber);
+
+        if (optionalCar.isEmpty()) {
+            return null;
+        }
+        String date = String.valueOf(optionalCar.get().getCreatedDate());
+
+        return date;
+    }
+
+    public List<CarDto> getCarInfoFromUserId(Long userId) {
+        List<CarDto> carDtoList = carRepository.findByUserId(userId)
+                .stream().map(car -> convertToCar(car))
+                .collect(Collectors.toList());
+
+        return carDtoList;
+    }
+
+    private CarDto convertToCar(Car car) {
+        CarDto carDto = CarDto.builder()
+                .carNumber(car.getCarNumber())
+                .scratch(car.getScratch())
+                .exterior(car.getExterior())
+                .installation(car.getInstallation())
+                .gap(car.getGap())
+                .totalDefects(car.getTotalDefects())
+                .build();
+
+        return carDto;
     }
 }

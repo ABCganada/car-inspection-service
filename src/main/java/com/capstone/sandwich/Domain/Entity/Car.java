@@ -18,6 +18,7 @@ public class Car {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(nullable = false)
     private String carNumber;
 
     /*TODO
@@ -30,12 +31,21 @@ public class Car {
     private Integer gap; // 단차 손상 개수
     private Integer totalDefects;
 
-    @OneToMany(mappedBy = "car", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "car", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     private List<CarImages> carImages;
+
+    private Long userId;
 
     private LocalDate createdDate;
 
     public void setCarImages(List<CarImages> carImages) {
         this.carImages = carImages;
+    }
+
+    @PreRemove
+    private void preRemove() {
+        for (CarImages image : carImages) {
+            image.setCar(null);
+        }
     }
 }
